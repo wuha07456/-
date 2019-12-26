@@ -1,0 +1,61 @@
+*** Settings ***
+Library           Selenium2Library
+Library           containletters.py
+
+*** Keywords ***
+免密码登录系统
+    [Arguments]    ${destination_url}    # 待测目标地址
+    [Documentation]    通过cookie 免密码登录
+    ...
+    ...    进入待测的网页
+    ...
+    ...    参数：待测网页地址
+    打开浏览器
+    add cookie    gr_user_id    57880d19-f2cf-4300-929a-fee78aef6155
+    add cookie    grwng_uid    2c2b2505-ee64-428e-a50f-3c12dd3bd5cb
+    add cookie    last_visit    1577106517236
+    add cookie    token    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Nzk2MzMyMDAsInVzZXJfaWQiOiI1ZGY4Y2RjN2RkMmJkYjAwMDEyYTkwZmEifQ.eT9ZvrCZmEE407vqV-v-6C7THo-s57lXxdfF5M5ROR8
+    add cookie    user_id    5df8cdc7dd2bdb00012a90fa
+    go to    ${destination_url}
+
+打开浏览器
+    [Arguments]    ${url}=${homepage_url}
+    Open Browser    ${url}    Chrome
+
+登录系统
+    [Arguments]    ${user_phonenumber}    ${password}=${EMPTY}    ${tip_text}=${EMPTY}    ${url}=${homepage_url}    # 参数依次是 电话号码 登陆密码 提示内容 默认参数 主页地址
+    打开浏览器
+    Maximize Browser Window
+    click button    登录
+    #切换frame
+    select frame    xpath=/html/body/div[2]/iframe
+    sleep    5
+    Input Text    xpath=/html/body/div/div/div/div/div[3]/input    ${user_phonenumber}
+    click button    xpath=/html/body/div/div/div/div/button
+    sleep    5
+    Input Password    xpath=/html/body/div/div/div/div/div[5]/input    ${password}
+    click button    xpath=/html/body/div/div/div/div/button
+    sleep    5
+    #断言 判断页面内容
+    Page Should Contain    ${tip_text}
+
+注册账号
+    [Arguments]    ${user_phonenumber}    ${tip_text}    # 参数：电话号码 提示信息
+    打开浏览器
+    click button    注册
+    #切换frame
+    select frame    xpath=/html/body/div[2]/iframe
+    sleep    5
+    Input Text    xpath=/html/body/div/div/div/div/div[3]/input    ${user_phonenumber}
+    click button    xpath=/html/body/div/div/div/div/button
+    sleep    4
+    #获取输入信息的长度
+    ${length}    get length    ${user_phonenumber}
+    #判断输入信息是否包含字母
+    ${contains_letter}    Containletters    ${user_phonenumber}
+    #根据不同输入情况获取提示信息
+    ${error_tip}    Run Keyword If    '${user_phonenumber}'=='${EMPTY}'    get text    xpath=/html/body/div/div/div/div/div[3]/span
+    ...    ELSE IF    ${length}<11    get text    xpath=/html/body/div/div/div/div/div[3]/span
+    ...    ELSE IF    '${contains_letter}'=='True'    get text    xpath=/html/body/div/div/div/div/div[3]/span
+    ...    ELSE    click button    xpath=/html/body/div/div/div/div/div[5]/button
+    Should Be Equal As Strings    ${error_tip}    ${tip_text}

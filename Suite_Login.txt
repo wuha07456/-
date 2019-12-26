@@ -1,0 +1,27 @@
+*** Settings ***
+Test Teardown     close browser
+Library           Selenium2Library
+Resource          XiaoJiaoYu_Keywords.txt
+
+*** Variables ***
+${homepage_url}    https://www.xiaozhibo.com/    # 首页
+${free_courses_url}    https://www.xiaozhibo.com/free-courses/online    # 公开课页面
+
+*** Test Cases ***
+Case-01-LoginByRightUserInfo
+    [Documentation]    正确的账号 正确密码 登录
+    登录系统    18689474257    a6395734    李德
+    [Teardown]    close browser
+
+Case-02-LoginByCookie
+    [Documentation]    通过cookie 跳过账号密码 登录系统 前往待测页面
+    免密码登录系统    ${free_courses_url}
+    sleep    5
+
+Case-03-LoginByWrongPassword
+    [Documentation]    正确的账号 错误的密码
+    登录系统    18689474257    wrongpassword    密码不匹配
+
+Case-04-LoginByNullPassword
+    [Documentation]    正确的账号 密码为空
+    登录系统    18689474257    ${EMPTY}    密码为6到16位字母、数字

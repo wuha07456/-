@@ -1,0 +1,26 @@
+*** Settings ***
+Test Teardown     close browser
+Resource          XiaoJiaoYu_Keywords.txt
+Library           Selenium2Library
+Library           containletters.py
+
+*** Variables ***
+${homepage_url}    https://www.xiaozhibo.com
+
+*** Test Cases ***
+Case-01-RegisterAccount_phonenumIsEmpty
+    [Documentation]    注册账号 手机号为空 提示号码格式错误
+    注册账号    ${EMPTY}    号码格式错误
+
+Case-02-RegisterAccount_phonenumwrongformat
+    [Documentation]    注册账号 手机号长度小于11 手机号码包含字母 提示号码格式错误
+    #长度小于11
+    注册账号    1234567890    号码格式错误
+    #包含字母
+    注册账号    1367654abcd    号码格式错误
+
+Case-03-RegisterAccount_rightinfo
+    [Documentation]    注册账号 正确的手机号 注册成功
+    注册账号    12345678911    None
+
+*** Keywords ***
